@@ -2,6 +2,7 @@ package main
 
 import (
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"net/url"
@@ -12,12 +13,25 @@ import (
 	"github.com/urfave/cli"
 )
 
+func check(e error) {
+	if e != nil {
+		panic(e)
+	}
+}
+
+func getVersion() string {
+	data, err := ioutil.ReadFile("VERSION")
+	check(err)
+
+	return string(data)
+}
+
 func main() {
 	var directory string
 
 	app := cli.NewApp()
 	app.Name = "UIP"
-	app.Version = "0.0.1"
+	app.Version = getVersion()
 	app.Usage = "a tool to download wallpapers"
 
 	app.Flags = []cli.Flag{
