@@ -3,18 +3,21 @@ go:
 - 1.8.1
 
 before_install:
-- go env
 - go get -v
 - go get -v github.com/golang/lint/golint
 
 script:
 - golint
+- go build .
 
 before_deploy:
-- go build .
-- git config --local user.name "Naveen Kumar Sangi"
-- git config --local user.email "naveenkumarsangi@protonmail.com"
-- git tag "v$(cat VERSION).$(git log --format=%H -1)"
+- |
+  if [ $TRAVIS_BRANCH == "release" ]; then
+    export GIT_TAG=v$(cat VERSION)
+  else
+    export GIT_TAG="v$(cat VERSION).$(git log --format=%h -1)"
+  fi
+- git tag $GIT_TAG
 
 deploy:
   provider: releases
@@ -24,7 +27,7 @@ deploy:
   skip_cleanup: true
   on:
     repo: nkprince007/uipgo
-    branch: master
+    all_branches: true
 
 notifications:
   email: false
