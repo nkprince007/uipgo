@@ -2,3 +2,6 @@
 
 # The uipgo binary
 uipgo
+
+# go dependencies
+vendor

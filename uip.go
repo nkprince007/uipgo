@@ -1,51 +1,70 @@
 package main
 
 import (
-	"flag"
-	"fmt"
 	"io"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"strings"
+
+	"github.com/urfave/cli"
 )
 
 func main() {
-	dir := flag.String("d", ".", "the directory to store images")
-	flag.Parse()
+	var directory string
 
-	args := flag.Args()
+	app := cli.NewApp()
+	app.Name = "UIP"
+	app.Version = "0.0.1"
+	app.Usage = "a tool to download wallpapers"
 
-	if len(args) < 1 {
-		flag.Usage()
-
-		fmt.Println("Please provide at least one image URL as argument")
-		os.Exit(1)
+	app.Flags = []cli.Flag{
+		cli.StringFlag{
+			Name:        "directory",
+			Value:       ".",
+			Usage:       "directory to store wallpapers in",
+			Destination: &directory,
+		},
 	}
 
-	for i := range args {
-		parts := strings.Split(args[i], "/")
-		filename := parts[len(parts)-1]
-		filepath := path.Join(*dir, filename)
-		err := DownloadFile(filepath, args[i])
-		if err != nil {
-			log.Fatal(err)
+	app.Action = func(c *cli.Context) error {
+		if c.NArg() < 1 {
+			cli.ShowAppHelpAndExit(c, 1)
 		}
+
+		args := c.Args()
+		for i := range args {
+			parts := strings.Split(args[i], "/")
+			filename := parts[len(parts)-1]
+			filepath := path.Join(directory, filename)
+			err := DownloadFile(filepath, args[i])
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+
+		return nil
 	}
 
-	fmt.Println()
+	app.Run(os.Args)
 }
 
 // DownloadFile downloads a file from the given url and stores it in filepath
-func DownloadFile(filepath string, url string) (err error) {
+func DownloadFile(filepath string, rawurl string) (err error) {
+	parsedurl, err := url.ParseRequestURI(rawurl)
+	if err != nil {
+		return err
+	}
+
 	out, err := os.Create(filepath)
 	if err != nil {
 		return err
 	}
 	defer out.Close()
 
-	resp, err := http.Get(url)
+	resp, err := http.Get(parsedurl.EscapedPath())
 	if err != nil {
 		return err
 	}
