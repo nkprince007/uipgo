@@ -11,17 +11,18 @@ script:
 - go build .
 
 before_deploy:
+- git fetch --all
 - |
   if [ $TRAVIS_BRANCH == "release" ]; then
     export GIT_TAG=v$(cat VERSION)
   else
-    export GIT_TAG="latest"
+    export GIT_TAG="master@$(git log --format=%h -1)"
   fi
-- git tag -d "latest" || true
 - git tag $GIT_TAG
 
 deploy:
   provider: releases
+  prelease: true
   api_key:
     secure: ATvDM19lgVfR4b3Og2vF1HOSTeERLnzwpwyxusKAZUa7QxqwvHj7lx7JUJV5GCJuA1YDMu5uYV3XYbsbFKO5nefgAzsAOxGYXJVMEkrXMWacb2S5kEAkFwse2XITPq8RJneEPXKsumz3GFuz82SBiuyTwbrCI8lW0i815drijqdbUJx3rbcRZM0vcue5IwEV+8O1I5YggK5EsNTjhMhCQCAJ73HThp8T36cQE1yTGkzoBoCUnYIWACDhbUKSEEzTVbHA3ygswqt5abvs6qXxSDGhWkLgnBRIv5GohIhMtmlo3p7wj4jPzn8zpWVd1BAHOl7fqegEUTSMQBp9TkIgc2wMxUYaCiJ7nsAujlCYAmfnlQ6/ZlMSjeCEdcV2LEMRPWCOyY8y1oiveA6J989CGAUyCrDHnpHcwBLgQxkB42sGIbez+Xa3lnBKWVsxxYf1v29BzjllAJzfdtnECHSersottDT9QsXptxdTSyD35ZA0252F8yUTvxKQdQc4uuUyvFC3VTYzSqwiY/W2n+Bp5q0j79xkrc2WIX487CigMmUow8c/s1tFh6LpSXtRfgzCIxNTeyab5Grtc4fi+TJX9AQC2D3220r+Ky4+VWi+DEaAFq4YR0xeMRT4Y3X0uf0VXPs/1c3whWBoI62l6qzDGdQ6ZIhxzb4FhsuCHpHdWFE=
   file: uipgo
