@@ -11,6 +11,7 @@ import (
 	"path/filepath"
 
 	// third party imports
+	"github.com/nkprince007/uipgo/lib"
 	"github.com/urfave/cli"
 )
 
@@ -26,7 +27,7 @@ var Websites = map[string][]string{
 
 func getVersion() string {
 	data, err := ioutil.ReadFile("VERSION")
-	Check(err)
+	lib.Check(err)
 
 	return string(data)
 }
@@ -54,7 +55,7 @@ func main() {
 	}
 
 	app.Action = func(c *cli.Context) error {
-		GetAndStoreImages(Websites, c)
+		lib.GetAndStoreImages(Websites, c)
 		return nil
 	}
 
