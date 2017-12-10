@@ -9,14 +9,15 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
+	"sync"
 
 	"github.com/urfave/cli"
 )
 
-// Check raises panic when an error is passed.
+// Check logs any errors occured when an error is passed.
 func Check(e error) {
 	if e != nil {
-		panic(e)
+		log.Println(e)
 	}
 }
 
@@ -59,45 +60,41 @@ func GetAndStoreImages(sites map[string][]string, c *cli.Context) {
 		}
 	}
 
+	var wg sync.WaitGroup
 	for _, image := range images {
-		err := DownloadFile(c.String("directory"), image.Name(), image.URL())
-		if err != nil {
-			log.Println(err)
-			continue
-		}
-		fmt.Println("Downloaded image: " + image.Name())
+		wg.Add(1)
+		go DownloadFile(c.String("directory"), image.Name(), image.URL(), &wg)
 	}
+	wg.Wait()
 
 	return
 }
 
 // DownloadFile downloads a file from the given url and stores it in filepath
-func DownloadFile(dir string, filename string, rawurl string) error {
+func DownloadFile(
+	dir string, filename string, rawurl string, wg *sync.WaitGroup) {
+	defer wg.Done()
+
 	_, err := url.ParseRequestURI(rawurl)
-	if err != nil {
-		return err
-	}
+	Check(err)
 
 	err = os.MkdirAll(dir, os.ModePerm)
 	Check(err)
 
 	out, err := os.Create(filename)
-	defer os.Rename(filename, filepath.Join(dir, filename))
+	Check(err)
 
-	if err != nil {
-		return err
-	}
+	defer os.Rename(filename, filepath.Join(dir, filename))
 	defer out.Close()
 
 	resp, err := http.Get(rawurl)
-	if err != nil {
-		return err
-	}
+	Check(err)
+
 	defer resp.Body.Close()
 
 	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		return err
-	}
-	return nil
+	Check(err)
+
+	fmt.Println("Image downloaded successfully: " + filename)
+	return
 }
