@@ -4,33 +4,40 @@
 package main
 
 import (
-	"io"
 	"io/ioutil"
 	"log"
-	"net/http"
-	"net/url"
 	"os"
-	"path"
-	"strings"
+	"os/user"
+	"path/filepath"
 
+	// third party imports
 	"github.com/urfave/cli"
 )
 
-func check(e error) {
-	if e != nil {
-		panic(e)
-	}
+// The client ID provided is free for development use for upto 50 requests/hr.
+const unsplashClientID = "74f6347705c15665e0d3d4b241fce1e9c2ef26761aeddfe0724dcd00d2823af5"
+
+// Websites is the list of precollected websites to download wallpapers from.
+var Websites = map[string][]string{
+	"unsplash": {
+		"https://api.unsplash.com/photos?client_id=" + unsplashClientID,
+	},
 }
 
 func getVersion() string {
 	data, err := ioutil.ReadFile("VERSION")
-	check(err)
+	Check(err)
 
 	return string(data)
 }
 
 func main() {
 	var directory string
+
+	usr, err := user.Current()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	app := cli.NewApp()
 	app.Name = "UIP"
@@ -40,56 +47,16 @@ func main() {
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:        "directory",
-			Value:       ".",
+			Value:       filepath.Join(usr.HomeDir, ".uipgo"),
 			Usage:       "directory to store wallpapers in",
 			Destination: &directory,
 		},
 	}
 
 	app.Action = func(c *cli.Context) error {
-		if c.NArg() < 1 {
-			cli.ShowAppHelpAndExit(c, 1)
-		}
-
-		args := c.Args()
-		for i := range args {
-			parts := strings.Split(args[i], "/")
-			filename := parts[len(parts)-1]
-			filepath := path.Join(directory, filename)
-			err := DownloadFile(filepath, args[i])
-			if err != nil {
-				log.Fatal(err)
-			}
-		}
-
+		GetAndStoreImages(Websites, c)
 		return nil
 	}
 
 	app.Run(os.Args)
-}
-
-// DownloadFile downloads a file from the given url and stores it in filepath
-func DownloadFile(filepath string, rawurl string) (err error) {
-	parsedurl, err := url.ParseRequestURI(rawurl)
-	if err != nil {
-		return err
-	}
-
-	out, err := os.Create(filepath)
-	if err != nil {
-		return err
-	}
-	defer out.Close()
-
-	resp, err := http.Get(parsedurl.EscapedPath())
-	if err != nil {
-		return err
-	}
-	defer resp.Body.Close()
-
-	_, err = io.Copy(out, resp.Body)
-	if err != nil {
-		return err
-	}
-	return nil
 }
