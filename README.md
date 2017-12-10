@@ -1,7 +1,12 @@
-# uipgo
+<h1 align="center">uipgo</h1>
 
-A rewrite of python [UIP package](https://github.com/nitdgpos/UIP) in Go just
-for the fun of it.
+<p align="center">
+    <img align="center" alt="Travis" src="https://img.shields.io/travis/nkprince007/uipgo.svg?style=for-the-badge" />
+</p>
+
+<h3 align="center">
+A rewrite of python <a href="https://github.com/nitdgpos/UIP">UIP package</a> in Go just for the fun of it.
+</h3>
 
 ## Installation
 
