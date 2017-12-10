@@ -15,8 +15,9 @@ before_deploy:
   if [ $TRAVIS_BRANCH == "release" ]; then
     export GIT_TAG=v$(cat VERSION)
   else
-    export GIT_TAG="v$(cat VERSION).$(git log --format=%h -1)"
+    export GIT_TAG="latest"
   fi
+- git tag -d "latest" || true
 - git tag $GIT_TAG
 
 deploy:
