@@ -1,3 +1,6 @@
+// uipgo is a rewrite of UIP package from python to download wallpapers from
+// chosen sites.
+
 package main
 
 import (

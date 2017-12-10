@@ -16,3 +16,9 @@ You can download the latest master build binary
 ```bash
 go get -v github.com/nkprince007/uipgo
 ```
+
+## Disclaimer
+
+All the APIs used here are free and under no copyrights. No warranties,
+promises and/or representations of any kind, expressed or implied, are given as
+to the nature and content of images provided by this tool.
