@@ -22,8 +22,6 @@ func Check(e error) {
 }
 
 func getUnsplashImages(rawurl string) []Image {
-	retImage := []Image{}
-
 	_, err := url.ParseRequestURI(rawurl)
 	Check(err)
 
@@ -42,8 +40,9 @@ func getUnsplashImages(rawurl string) []Image {
 	Check(err)
 
 	// type conversion for abiding to interface
+	retImage := make([]Image, len(ret))
 	for i := range ret {
-		retImage = append(retImage, Image(ret[i]))
+		retImage[i] = ret[i]
 	}
 
 	return retImage
