@@ -9,16 +9,9 @@ import (
 	"net/url"
 	"os"
 	"path/filepath"
-	"strings"
 
 	"github.com/urfave/cli"
 )
-
-// Image is a golang representation for image metadata.
-type Image struct {
-	url  string
-	name string
-}
 
 // Check raises panic when an error is passed.
 func Check(e error) {
@@ -27,22 +20,8 @@ func Check(e error) {
 	}
 }
 
-// UnsplashURLs has a list of urls
-type UnsplashURLs struct {
-	Raw     string `json:"raw"`
-	Full    string `json:"full"`
-	Regular string `json:"regular"`
-	Small   string `json:"small"`
-	Thumb   string `json:"thumb"`
-}
-
-// UnsplashImage represents an image from https://unsplash.com
-type UnsplashImage struct {
-	URLs UnsplashURLs `json:"urls"`
-}
-
-func getUnsplashImages(rawurl string) []UnsplashImage {
-	ret := &[]UnsplashImage{}
+func getUnsplashImages(rawurl string) []Image {
+	retImage := []Image{}
 
 	_, err := url.ParseRequestURI(rawurl)
 	Check(err)
@@ -57,10 +36,16 @@ func getUnsplashImages(rawurl string) []UnsplashImage {
 
 	defer resp.Body.Close()
 
-	err = json.NewDecoder(resp.Body).Decode(ret)
+	ret := []UnsplashImage{}
+	err = json.NewDecoder(resp.Body).Decode(&ret)
 	Check(err)
 
-	return *ret
+	// type conversion for abiding to interface
+	for i := range ret {
+		retImage = append(retImage, Image(ret[i]))
+	}
+
+	return retImage
 }
 
 // GetAndStoreImages downloads and stores images from given websites.
@@ -70,24 +55,17 @@ func GetAndStoreImages(sites map[string][]string, c *cli.Context) {
 	list, ok := sites["unsplash"]
 	if ok {
 		for _, site := range list {
-			unsplashImages := getUnsplashImages(site)
-			for _, image := range unsplashImages {
-				parts := strings.Split(image.URLs.Regular, "/")
-				index := strings.Index(parts[len(parts)-1], "?")
-				identifier := parts[len(parts)-1][:index]
-				name := fmt.Sprintf("unsplash-%s.jpg", identifier)
-				images = append(images, Image{image.URLs.Regular, name})
-			}
+			images = append(images, getUnsplashImages(site)...)
 		}
 	}
 
 	for _, image := range images {
-		err := DownloadFile(c.String("directory"), image.name, image.url)
+		err := DownloadFile(c.String("directory"), image.Name(), image.URL())
 		if err != nil {
 			log.Println(err)
-		} else {
-			fmt.Println("Downloaded image: " + image.name)
+			continue
 		}
+		fmt.Println("Downloaded image: " + image.Name())
 	}
 
 	return
