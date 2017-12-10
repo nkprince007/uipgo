@@ -3,11 +3,13 @@ go:
 - 1.8.1
 
 before_install:
-- go get -v
+- dep ensure
 - go get -v github.com/golang/lint/golint
 
 script:
-- golint
+- go list ./... | grep -v /vendor/ | xargs -L1 golint
+- go vet -v ./...
+- sh /.ci/cover.sh
 - go build .
 
 before_deploy:

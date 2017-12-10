@@ -14,6 +14,9 @@ import (
 	"github.com/urfave/cli"
 )
 
+// NOOFIMAGES denotes the number of images to be downloaded per Website URL.
+const NOOFIMAGES = 5
+
 // Check logs any errors occured when an error is passed.
 func Check(e error) {
 	if e != nil {
@@ -21,7 +24,8 @@ func Check(e error) {
 	}
 }
 
-func getUnsplashImages(rawurl string) []Image {
+// GetUnsplashImages gets a list of images from provided Unsplash API endpoint.
+func GetUnsplashImages(rawurl string) []Image {
 	_, err := url.ParseRequestURI(rawurl)
 	Check(err)
 
@@ -35,7 +39,7 @@ func getUnsplashImages(rawurl string) []Image {
 
 	defer resp.Body.Close()
 
-	ret := []UnsplashImage{}
+	ret := [NOOFIMAGES]UnsplashImage{}
 	err = json.NewDecoder(resp.Body).Decode(&ret)
 	Check(err)
 
@@ -55,7 +59,7 @@ func GetAndStoreImages(sites map[string][]string, c *cli.Context) {
 	list, ok := sites["unsplash"]
 	if ok {
 		for _, site := range list {
-			images = append(images, getUnsplashImages(site)...)
+			images = append(images, GetUnsplashImages(site)...)
 		}
 	}
 
@@ -72,7 +76,10 @@ func GetAndStoreImages(sites map[string][]string, c *cli.Context) {
 // DownloadFile downloads a file from the given url and stores it in filepath
 func DownloadFile(
 	dir string, filename string, rawurl string, wg *sync.WaitGroup) {
-	defer wg.Done()
+
+	if wg != nil {
+		defer wg.Done()
+	}
 
 	_, err := url.ParseRequestURI(rawurl)
 	Check(err)
