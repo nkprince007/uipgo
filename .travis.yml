@@ -27,7 +27,10 @@ deploy:
   skip_cleanup: true
   on:
     repo: nkprince007/uipgo
-    all_branches: true
+    branches:
+      only:
+        - master
+        - release
 
 notifications:
   email: false
