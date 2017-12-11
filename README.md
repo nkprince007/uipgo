@@ -1,7 +1,8 @@
 <h1 align="center">uipgo</h1>
 
 <p align="center">
-    <img align="center" alt="Travis" src="https://img.shields.io/travis/nkprince007/uipgo.svg?style=for-the-badge" />
+    <img alt="Travis" src="https://img.shields.io/travis/nkprince007/uipgo.svg?style=for-the-badge" />
+    <img alt="Coveralls" src="https://img.shields.io/coveralls/github/nkprince007/uipgo.svg?style=for-the-badge">
 </p>
 
 <h3 align="center">
