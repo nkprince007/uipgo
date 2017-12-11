@@ -5,3 +5,6 @@ uipgo
 
 # go dependencies
 vendor
+
+# coverage
+.cover
