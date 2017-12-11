@@ -29,3 +29,32 @@ func (i UnsplashImage) Name() string {
 	name := fmt.Sprintf("unsplash-%s.jpg", identifier)
 	return name
 }
+
+// DesktopprResponseURL contains the actual URL field for DesktopprImage
+type DesktopprResponseURL struct {
+	URL string `json:"url"`
+}
+
+// DesktopprImage represents an image on https://desktoppr.co
+type DesktopprImage struct {
+	Image DesktopprResponseURL `json:"image"`
+}
+
+// DesktopprAPIResponse represents a list of DesktopprImages from the API
+// response on https://api.desktoppr.co
+type DesktopprAPIResponse struct {
+	Images []DesktopprImage `json:"response"`
+}
+
+// URL retrieves the url of DesktopprImage
+func (i DesktopprImage) URL() string {
+	return i.Image.URL
+}
+
+// Name retrieves the name of DesktopprImage
+func (i DesktopprImage) Name() string {
+	parts := strings.Split(i.URL(), "/")
+	name := parts[len(parts)-1]
+	name = fmt.Sprintf("desktoppr-%s", name)
+	return name
+}

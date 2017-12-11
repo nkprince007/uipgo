@@ -23,6 +23,9 @@ var Websites = map[string][]string{
 	"unsplash": {
 		"https://api.unsplash.com/photos?client_id=" + unsplashClientID,
 	},
+	"desktoppr": {
+		"https://api.desktoppr.co/1/wallpapers",
+	},
 }
 
 func getVersion() string {

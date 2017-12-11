@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -20,12 +19,11 @@ const NOOFIMAGES = 5
 // Check logs any errors occured when an error is passed.
 func Check(e error) {
 	if e != nil {
-		log.Println(e)
+		panic(e)
 	}
 }
 
-// GetUnsplashImages gets a list of images from provided Unsplash API endpoint.
-func GetUnsplashImages(rawurl string) []Image {
+func sendRequest(rawurl string) *http.Response {
 	_, err := url.ParseRequestURI(rawurl)
 	Check(err)
 
@@ -37,10 +35,44 @@ func GetUnsplashImages(rawurl string) []Image {
 	resp, err := client.Do(req)
 	Check(err)
 
+	return resp
+}
+
+// GetDesktopprImages gets a list of images from provided Desktoppr API
+// endpoint.
+func GetDesktopprImages(rawurl string, wg *sync.WaitGroup) []Image {
+	if wg != nil {
+		defer wg.Done()
+	}
+
+	resp := sendRequest(rawurl)
+	defer resp.Body.Close()
+
+	ret := DesktopprAPIResponse{}
+	err := json.NewDecoder(resp.Body).Decode(&ret)
+	Check(err)
+
+	// type conversion for abiding to interface
+	images := ret.Images
+	retImage := make([]Image, len(images))
+	for i := range images {
+		retImage[i] = images[i]
+	}
+
+	return retImage[:NOOFIMAGES]
+}
+
+// GetUnsplashImages gets a list of images from provided Unsplash API endpoint.
+func GetUnsplashImages(rawurl string, wg *sync.WaitGroup) []Image {
+	if wg != nil {
+		defer wg.Done()
+	}
+
+	resp := sendRequest(rawurl)
 	defer resp.Body.Close()
 
 	ret := [NOOFIMAGES]UnsplashImage{}
-	err = json.NewDecoder(resp.Body).Decode(&ret)
+	err := json.NewDecoder(resp.Body).Decode(&ret)
 	Check(err)
 
 	// type conversion for abiding to interface
@@ -55,15 +87,25 @@ func GetUnsplashImages(rawurl string) []Image {
 // GetAndStoreImages downloads and stores images from given websites.
 func GetAndStoreImages(sites map[string][]string, c *cli.Context) {
 	images := []Image{}
+	var wg sync.WaitGroup
 
 	list, ok := sites["unsplash"]
 	if ok {
 		for _, site := range list {
-			images = append(images, GetUnsplashImages(site)...)
+			wg.Add(1)
+			images = append(images, GetUnsplashImages(site, &wg)...)
 		}
 	}
 
-	var wg sync.WaitGroup
+	list, ok = sites["desktoppr"]
+	if ok {
+		for _, site := range list {
+			wg.Add(1)
+			images = append(images, GetDesktopprImages(site, &wg)...)
+		}
+	}
+	wg.Wait()
+
 	for _, image := range images {
 		wg.Add(1)
 		go DownloadFile(c.String("directory"), image.Name(), image.URL(), &wg)
