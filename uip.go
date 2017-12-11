@@ -44,7 +44,7 @@ func main() {
 	}
 
 	app := cli.NewApp()
-	app.Name = "UIP"
+	app.Name = "uipgo"
 	app.Version = getVersion()
 	app.Usage = "a tool to download wallpapers"
 
