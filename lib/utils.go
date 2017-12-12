@@ -15,6 +15,8 @@ import (
 func ShowDownloadProgress(
 	done chan int64, bar *uiprogress.Bar, path string, total int64,
 ) {
+	// notest
+
 	bar.PrependFunc(func(b *uiprogress.Bar) string {
 		return fmt.Sprintf("%50s", filepath.Base(path))
 	})
@@ -45,6 +47,8 @@ func ShowDownloadProgress(
 
 // GetAndStoreImages downloads and stores images from given websites.
 func GetAndStoreImages(sites map[string][]string, c *cli.Context) {
+	// notest
+
 	images := []Image{}
 	var wg sync.WaitGroup
 

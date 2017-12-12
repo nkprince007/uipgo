@@ -29,6 +29,8 @@ var Websites = map[string][]string{
 }
 
 func getVersion() string {
+	// notest
+
 	data, err := ioutil.ReadFile("VERSION")
 	lib.Check(err)
 
@@ -36,6 +38,8 @@ func getVersion() string {
 }
 
 func main() {
+	// notest
+
 	var directory string
 
 	usr, err := user.Current()

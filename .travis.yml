@@ -6,12 +6,16 @@ before_install:
 - go get -v ./...
 - go get -v github.com/golang/lint/golint
 - go get -v github.com/mattn/goveralls
+- go get -v github.com/dave/courtney
 
 script:
 - go list ./... | grep -v /vendor/ | xargs -L1 golint
 - go vet -v ./...
-- sh .ci/cover.sh --coveralls
+- courtney -v `go list ./...`
 - go build .
+
+after_success:
+- goveralls -coverprofile=coverage.out -service=travis-ci
 
 before_deploy:
 - git fetch --all
