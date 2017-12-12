@@ -7,4 +7,4 @@ uipgo
 vendor
 
 # coverage
-.cover
+coverage.out
