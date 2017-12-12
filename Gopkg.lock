@@ -2,14 +2,38 @@
 
 
 [[projects]]
+  branch = "master"
+  name = "github.com/gosuri/uilive"
+  packages = ["."]
+  revision = "ac356e6e42cd31fcef8e6aec13ae9ed6fe87713e"
+
+[[projects]]
+  branch = "master"
+  name = "github.com/gosuri/uiprogress"
+  packages = [".","util/strutil"]
+  revision = "d0567a9d84a1c40dd7568115ea66f4887bf57b33"
+
+[[projects]]
+  name = "github.com/mattn/go-isatty"
+  packages = ["."]
+  revision = "0360b2af4f38e8d38c7fce2a9f4e702702d73a39"
+  version = "v0.0.3"
+
+[[projects]]
   name = "github.com/urfave/cli"
   packages = ["."]
   revision = "cfb38830724cc34fedffe9a2a29fb54fa9169cd1"
   version = "v1.20.0"
 
+[[projects]]
+  branch = "master"
+  name = "golang.org/x/sys"
+  packages = ["unix"]
+  revision = "53aa286056ef226755cd898109dbcdaba8ac0b81"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "dc31bf18b10af3b28727eb5be721811713c44bfc4ac5f49047e4ce7829f998a2"
+  inputs-digest = "c453a0a52a54d6aa3ae3d2118107b58b6fcee9f4019ed5a2f7764e3cccdb9910"
   solver-name = "gps-cdcl"
   solver-version = 1

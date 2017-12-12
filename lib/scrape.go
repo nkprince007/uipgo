@@ -2,15 +2,16 @@ package lib
 
 import (
 	"encoding/json"
-	"fmt"
 	"io"
 	"net/http"
 	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"sync"
+	"time"
 
-	"github.com/urfave/cli"
+	"github.com/gosuri/uiprogress"
 )
 
 // NOOFIMAGES denotes the number of images to be downloaded per Website URL.
@@ -84,41 +85,10 @@ func GetUnsplashImages(rawurl string, wg *sync.WaitGroup) []Image {
 	return retImage
 }
 
-// GetAndStoreImages downloads and stores images from given websites.
-func GetAndStoreImages(sites map[string][]string, c *cli.Context) {
-	images := []Image{}
-	var wg sync.WaitGroup
-
-	list, ok := sites["unsplash"]
-	if ok {
-		for _, site := range list {
-			wg.Add(1)
-			images = append(images, GetUnsplashImages(site, &wg)...)
-		}
-	}
-
-	list, ok = sites["desktoppr"]
-	if ok {
-		for _, site := range list {
-			wg.Add(1)
-			images = append(images, GetDesktopprImages(site, &wg)...)
-		}
-	}
-	wg.Wait()
-
-	for _, image := range images {
-		wg.Add(1)
-		go DownloadFile(c.String("directory"), image.Name(), image.URL(), &wg)
-	}
-	wg.Wait()
-
-	return
-}
-
 // DownloadFile downloads a file from the given url and stores it in filepath
 func DownloadFile(
-	dir string, filename string, rawurl string, wg *sync.WaitGroup) {
-
+	path string, rawurl string, bar *uiprogress.Bar, wg *sync.WaitGroup,
+) {
 	if wg != nil {
 		defer wg.Done()
 	}
@@ -126,23 +96,38 @@ func DownloadFile(
 	_, err := url.ParseRequestURI(rawurl)
 	Check(err)
 
-	err = os.MkdirAll(dir, os.ModePerm)
+	err = os.MkdirAll(filepath.Dir(path), os.ModePerm)
 	Check(err)
 
-	out, err := os.Create(filename)
+	out, err := os.Create(path)
 	Check(err)
 
-	defer os.Rename(filename, filepath.Join(dir, filename))
 	defer out.Close()
+
+	headResp, err := http.Head(rawurl)
+	Check(err)
+
+	defer headResp.Body.Close()
+
+	size, err := strconv.Atoi(headResp.Header.Get("Content-Length"))
+	Check(err)
+
+	done := make(chan int64)
+	go ShowDownloadProgress(done, bar, path, int64(size))
 
 	resp, err := http.Get(rawurl)
 	Check(err)
 
 	defer resp.Body.Close()
 
-	_, err = io.Copy(out, resp.Body)
+	written, err := io.Copy(out, resp.Body)
 	Check(err)
 
-	fmt.Println("Image downloaded successfully: " + filename)
+	done <- written
+
+	// wait for refreshing bar to full before exiting
+	bar.Set(40)
+	time.Sleep(10 * time.Millisecond)
+
 	return
 }
