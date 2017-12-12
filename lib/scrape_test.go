@@ -6,6 +6,8 @@ import (
 	"os"
 	"sync"
 	"testing"
+
+	"github.com/gosuri/uiprogress"
 )
 
 const unsplashClientID = "74f6347705c15665e0d3d4b241fce1e9c2ef26761aeddfe0724dcd00d2823af5"
@@ -69,10 +71,14 @@ func TestCheck(t *testing.T) {
 }
 
 func TestDownloadFile(t *testing.T) {
-	const TESTFILE = "test.json"
+	const TESTFILE = "test.jpg"
 	defer os.Remove(TESTFILE)
 
-	DownloadFile(".", TESTFILE, "https://github.com/nkprince007/uipgo.json", nil)
+	DownloadFile(
+		TESTFILE,
+		"http://www.sample-videos.com/img/Sample-jpg-image-50kb.jpg",
+		uiprogress.NewBar(10),
+		nil)
 
 	info, err := os.Stat(TESTFILE)
 	if info.Size() <= 0 || err != nil {
