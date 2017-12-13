@@ -6,8 +6,8 @@ import (
 	"strings"
 )
 
-// GetMacOSWallpaper returns the path to the current wallpaper.
-func GetMacOSWallpaper() (string, error) {
+// GetWallpaper returns the path to the current wallpaper.
+func GetWallpaper() (string, error) {
 	// notest
 
 	stdout, err := exec.Command(
@@ -22,8 +22,8 @@ func GetMacOSWallpaper() (string, error) {
 	return strings.TrimSpace(string(stdout)), nil
 }
 
-// SetMacOSWallpaper sets the wallpaper to the picture from provided path.
-func SetMacOSWallpaper(path string) error {
+// SetWallpaper sets the wallpaper to the picture from provided path.
+func SetWallpaper(path string) error {
 	// notest
 
 	return exec.Command(

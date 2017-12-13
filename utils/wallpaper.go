@@ -1,28 +1,19 @@
+// +build !darwin,!linux
+
 package utils
 
 import (
 	"errors"
-	"runtime"
 )
 
-// GetWallpaper retrieves the path to the current wallpaper.
+// GetWallpaper is a dummy function to help build successfully on all platforms
 func GetWallpaper() (string, error) {
 	// notest
-
-	if runtime.GOOS == "darwin" {
-		return GetMacOSWallpaper()
-	}
-
-	return "", errors.New("GetWallpaper isn't implemented for your platform yet")
+	return "", errors.New("GetWallpaper is not implemented for your platform")
 }
 
-// SetWallpaper sets the wallpaper to the picture from provided path.
+// SetWallpaper is a dummy function to help build successfully on all platforms
 func SetWallpaper(path string) error {
-	//notest
-
-	if runtime.GOOS == "darwin" {
-		return SetMacOSWallpaper(path)
-	}
-
-	return errors.New("SetWallpaper isn't implemented for your platform yet")
+	// notest
+	return errors.New("SetWallpaper is not implemented for your platform")
 }
