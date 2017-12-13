@@ -4,6 +4,7 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
@@ -12,6 +13,7 @@ import (
 
 	// third party imports
 	"github.com/nkprince007/uipgo/lib"
+	"github.com/nkprince007/uipgo/utils"
 	"github.com/urfave/cli"
 )
 
@@ -58,6 +60,29 @@ func main() {
 			Value:       filepath.Join(usr.HomeDir, ".uipgo"),
 			Usage:       "directory to store wallpapers in",
 			Destination: &directory,
+		},
+	}
+
+	app.Commands = []cli.Command{
+		cli.Command{
+			Name:    "wallpaper",
+			Aliases: []string{"wp"},
+			Usage:   "to change your desktop wallpaper",
+			Action: func(c *cli.Context) error {
+				if c.NArg() == 1 {
+					err := utils.SetWallpaper(c.Args()[0])
+					if err != nil {
+						log.Fatal(err)
+					}
+				} else if c.NArg() == 0 {
+					wp, err := utils.GetWallpaper()
+					if err != nil {
+						log.Fatal(err)
+					}
+					fmt.Println(wp)
+				}
+				return nil
+			},
 		},
 	}
 
