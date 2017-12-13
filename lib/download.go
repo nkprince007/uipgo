@@ -2,8 +2,12 @@ package lib
 
 import (
 	"fmt"
+	"io"
+	"net/http"
+	"net/url"
 	"os"
 	"path/filepath"
+	"strconv"
 	"sync"
 	"time"
 
@@ -79,6 +83,53 @@ func GetAndStoreImages(sites map[string][]string, c *cli.Context) {
 		go DownloadFile(path, image.URL(), bar, &wg)
 	}
 	wg.Wait()
+
+	return
+}
+
+// DownloadFile downloads a file from the given url and stores it in filepath
+func DownloadFile(
+	path string, rawurl string, bar *uiprogress.Bar, wg *sync.WaitGroup,
+) {
+	if wg != nil {
+		defer wg.Done()
+	}
+
+	_, err := url.ParseRequestURI(rawurl)
+	Check(err)
+
+	err = os.MkdirAll(filepath.Dir(path), os.ModePerm)
+	Check(err)
+
+	out, err := os.Create(path)
+	Check(err)
+
+	defer out.Close()
+
+	headResp, err := http.Head(rawurl)
+	Check(err)
+
+	defer headResp.Body.Close()
+
+	size, err := strconv.Atoi(headResp.Header.Get("Content-Length"))
+	Check(err)
+
+	done := make(chan int64)
+	go ShowDownloadProgress(done, bar, path, int64(size))
+
+	resp, err := http.Get(rawurl)
+	Check(err)
+
+	defer resp.Body.Close()
+
+	written, err := io.Copy(out, resp.Body)
+	Check(err)
+
+	done <- written
+
+	// wait for refreshing bar to full before exiting
+	bar.Set(40)
+	time.Sleep(10 * time.Millisecond)
 
 	return
 }
