@@ -9,7 +9,7 @@ before_install:
 - go get -v github.com/dave/courtney
 
 script:
-- go list ./... | grep -v /vendor/ | xargs -L1 golint
+- go list ./... | grep -v /vendor/ | xargs -L1 golint -set_exit_status
 - go vet -v ./...
 - courtney -v `go list ./...`
 - go build .
