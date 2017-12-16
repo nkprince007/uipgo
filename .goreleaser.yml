@@ -1,0 +1,10 @@
+builds:
+  - binary: uipgo
+    goos:
+      - linux
+      - darwin
+    goarch:
+      - amd64
+archive:
+  name_template: "{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}"
+  format: tar.gz

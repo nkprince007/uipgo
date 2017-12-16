@@ -5,7 +5,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -29,15 +28,6 @@ var Websites = map[string][]string{
 	},
 }
 
-func getVersion() string {
-	// notest
-
-	data, err := ioutil.ReadFile("VERSION")
-	lib.Check(err)
-
-	return string(data)
-}
-
 func main() {
 	// notest
 
@@ -45,7 +35,7 @@ func main() {
 
 	app := cli.NewApp()
 	app.Name = "uipgo"
-	app.Version = getVersion()
+	app.Version = "0.0.2"
 	app.Usage = "a tool to download wallpapers"
 
 	app.Flags = []cli.Flag{
