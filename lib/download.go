@@ -12,7 +12,6 @@ import (
 	"time"
 
 	"github.com/gosuri/uiprogress"
-	"github.com/urfave/cli"
 )
 
 // ShowDownloadProgress shows the download progress through the bar provided.
@@ -50,7 +49,7 @@ func ShowDownloadProgress(
 }
 
 // GetAndStoreImages downloads and stores images from given websites.
-func GetAndStoreImages(sites map[string][]string, c *cli.Context) {
+func GetAndStoreImages(sites map[string][]string, directory string) {
 	// notest
 
 	images := []Image{}
@@ -78,7 +77,7 @@ func GetAndStoreImages(sites map[string][]string, c *cli.Context) {
 
 	for _, image := range images {
 		wg.Add(1)
-		path := filepath.Join(c.String("directory"), image.Name())
+		path := filepath.Join(directory, image.Name())
 		bar := uiprogress.AddBar(40).AppendCompleted()
 		go DownloadFile(path, image.URL(), bar, &wg)
 	}

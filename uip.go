@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"os/user"
 	"path/filepath"
 
 	// third party imports
@@ -44,11 +43,6 @@ func main() {
 
 	var directory string
 
-	usr, err := user.Current()
-	if err != nil {
-		log.Fatal(err)
-	}
-
 	app := cli.NewApp()
 	app.Name = "uipgo"
 	app.Version = getVersion()
@@ -57,7 +51,7 @@ func main() {
 	app.Flags = []cli.Flag{
 		cli.StringFlag{
 			Name:        "directory",
-			Value:       filepath.Join(usr.HomeDir, ".uipgo"),
+			Value:       filepath.Join(lib.GetUserHomeDir(), ".uipgo"),
 			Usage:       "directory to store wallpapers in",
 			Destination: &directory,
 		},
@@ -86,8 +80,10 @@ func main() {
 		},
 	}
 
-	app.Action = func(c *cli.Context) error {
-		lib.GetAndStoreImages(Websites, c)
+	app.Action = func(ctx *cli.Context) error {
+		conf := &lib.Settings{}
+		lib.FetchConfig(ctx, conf)
+		lib.GetAndStoreImages(Websites, conf.StoragePath)
 		return nil
 	}
 
