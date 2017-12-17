@@ -13,6 +13,8 @@ import (
 const unsplashClientID = "74f6347705c15665e0d3d4b241fce1e9c2ef26761aeddfe0724dcd00d2823af5"
 
 func TestGetUnsplashImages(t *testing.T) {
+	t.Parallel()
+
 	endpoint := "https://api.unsplash.com/photos?client_id=" + unsplashClientID
 	var wg sync.WaitGroup
 	wg.Add(1)
@@ -36,6 +38,8 @@ func TestGetUnsplashImages(t *testing.T) {
 }
 
 func TestGetDesktopprImages(t *testing.T) {
+	t.Parallel()
+
 	endpoint := "https://api.desktoppr.co/1/wallpapers"
 
 	var wg sync.WaitGroup
@@ -71,6 +75,8 @@ func TestCheck(t *testing.T) {
 }
 
 func TestDownloadFile(t *testing.T) {
+	t.Parallel()
+
 	const TESTFILE = "test.jpg"
 	defer os.Remove(TESTFILE)
 
